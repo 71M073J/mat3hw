@@ -1,4 +1,5 @@
 import math
+import time
 
 import numpy as np
 import scipy.optimize as op
@@ -80,30 +81,37 @@ def interior_point(cost=cost, A=None):
     x = np.ones(n + 2)  # starting solution
     # x0[-1] = 1
     s = c + mu
-    s = np.hstack((np.atleast_2d(s), np.atleast_2d(np.array([mu, M + mu]))))
+    s = np.hstack((np.atleast_2d(s), np.atleast_2d(np.array([mu, M + mu])))).flatten()
     y = np.zeros(m + 1)
     y[-1] = -mu
     b_prime = np.concatenate((d, np.atleast_1d(n + 2)))
     asda = 1
     Q = L/(n + 2)
     #mu final = mustart * tau^-n
+    # za delta <= 1/6
+    delta = 1.0/8.0
+    tau = delta / math.sqrt(n)
     while mu >= L * Q / (64 * ((n + 2)**2) * ((m + 1) * U)**(m + 2)):
         #Ah = 0
         #Atk + f = 0
         #hisi + fixi = muprime - xisi for all i
         #solve this series of eq's?
 
-        mu_prime =
-        S = np.identity(len(s)).dot(s)
-        X = np.identity(len(x)).dot(x)
-        k = np.linalg.inv(A_prime.dot(np.linalg.inv(S)).dot(X).dot(A_prime.T))
-        k = k.dot(b_prime - mu_prime.dot(A_prime).dot(np.linalg.inv(S).dot(np.ones(n + 2))))
+        mu_prime = (1 - tau) * mu
+        S = np.diag(s)
+        Sinv = np.linalg.inv(S)
+        X = np.diag(x)
+        k = np.linalg.inv(A_prime.dot(Sinv).dot(X).dot(A_prime.T))
+        k = k.dot(b_prime - mu_prime * A_prime.dot(Sinv).dot(np.ones(S.shape[0])))
         f = -A_prime.T.dot(k)
-        h = mu_prime * np.linalg.inv(S).dot(X).dot()
-        xnext = x + h
-        ynext = y + k
-        snext = s + f
-
+        h = mu_prime * Sinv.dot(np.ones(S.shape[0])) - X.dot(Sinv).dot(f)
+        x = x + h
+        y = y + k
+        s = s + f
+        mu = mu_prime
+        print(mu, x, end="\n")
+    print(x, y, s, mu)
+    print(A_prime.dot(x), b_prime)
 
 
 
