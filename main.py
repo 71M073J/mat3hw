@@ -58,11 +58,19 @@ def interior_point(cost=cost, A=None):
     # Aty + s = c
     # s >= 0
     # introduce another unknown variable into A?
-    A = np.array([[2, 2, 3, 1, 0],
-                  [3, 1, 1, 0, 1],
-                  [1, 1, 1, 0, 0]])
-    b = np.array([140, 150, 133])#, 104, 125])
-    c = -np.array([100, 80, 2345, 0, 0])
+    A = np.array([[2, 2, 3, 1, 0, 0],
+                  [3, 1, 1, 0, 1, 0],
+                  [1, 1, 1, 0, 0, 1]])
+    A = A[:-1, :-1]
+    A = np.delete(A, 2, axis=1)
+    b = np.array([1223, 111, 133])#, 104, 125])
+    b = b[:-1]
+    c = -np.array([100, 80, 2345, 0, 0, 0])
+    c = c[:-1]
+    c = np.delete(c,2)
+
+    # TODO implement invariants to check for infeasibility
+
 
     A = remove_lin_rows(A)
     m = A.shape[0]
@@ -127,13 +135,13 @@ def interior_point(cost=cost, A=None):
         for k in range(A.shape[1]):
             sumcost += A[i, k] * x_solution[k]
         print(sumcost, b[i])
-    print(x_solution[:-2])
     print(c.dot(x_solution[:-2]))
 
-    #res = scipy.optimize.linprog(c, A_ub=A[:-1], b_ub=b[:-1], A_eq=np.atleast_2d(A[-1]), b_eq=np.atleast_1d(b[-1]))
-    #print(c.dot(res.x))
-    #print(np.linalg.norm(np.abs(x_solution[:-2] - res.x)) < 1e-5)
+    res = scipy.optimize.linprog(c, A_ub=A, b_ub=b)
+    print(c.dot(res.x))
+    print(np.linalg.norm(np.abs(x_solution[:-2] - res.x)))
 
+    print(x_solution[:-2] - res.x)
 
 
 if __name__ == '__main__':
