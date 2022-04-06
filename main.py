@@ -123,7 +123,7 @@ def interior_point():
         #Sinv = np.linalg.inv(S)
         Sinv = np.diag(1/s)
         X = np.diag(x_prime)
-        #maybe convert to sym.Matrix???
+        #maybe convert to sym.Matrix vse matrike tle not???
         k = np.array(A_prime.dot(Sinv).dot(X).dot(A_prime.T).inv()).astype(np.float64)
         k = k.dot(b_prime - mu_prime * A_prime.dot(Sinv).dot(np.ones(S.shape[0])))
         f = -(A_prime.T.dot(k))
